@@ -1,7 +1,7 @@
 /*
  * jiangyukun on 2016-07-30 11:35
  */
-import React, {Component} from 'react'
+import React, {Component, PropTypes} from 'react'
 import {Modal} from 'react-bootstrap'
 import Message from './Message'
 import SelectImage from './SelectImage'
@@ -9,6 +9,11 @@ import DoctorChatRecord from './DoctorChatRecord'
 import chatActions from '../actions/ChatActions'
 
 class UserChat extends Component {
+	static contextTypes = {
+		curUserId: PropTypes.string,
+		message: PropTypes.object
+	}
+
 	constructor(props) {
  		super(props)
  		this.state = {
@@ -36,6 +41,26 @@ class UserChat extends Component {
     }
 
  	render() {
+ 		let userId = this.props.user.userId
+		let message = this.context.message[userId]
+        let readMessage = [], unreadMessage = []
+        if (message && message.readMessage) {
+            readMessage = message.readMessage
+        }
+        if (message && message.unread && message.unread.count) {
+            unreadMessage = message.unread.message
+        }
+
+ 		let self = this
+ 		function showMessage(message) {
+ 			if (!message) {
+ 				return null;
+ 			}
+ 			return message.map((m, index) => {
+ 				return <Message key={index} username={m.from} content={m.data} dir={self.context.curUserId == m.from ? 'right': 'left'} />
+ 			})
+ 		}
+
  		return (
 			<div className="col-xs-9 message-box">
                 <div className="col-xs-6">
@@ -43,18 +68,8 @@ class UserChat extends Component {
 	                    <span>与{this.props.user.username}聊天中</span>
 	                </div>
 	                <div className="row history-message">
-	                    <Message dir="left" />
-	                    <Message dir="right" />
-	                    <Message dir="right" />
-	                    <Message dir="left" />
-	                    <Message dir="left" />
-	                    <Message dir="left" />
-	                    <Message dir="left" />
-	                    <Message dir="left" />
-	                    <Message dir="left" />
-	                    <Message dir="left" />
-	                    <Message dir="right" />
-	                    <Message dir="right" />
+	                    {showMessage(readMessage)}
+	                    {showMessage(unreadMessage)}
 	                </div>
 	                <div className="row send-messge-box">
 	                    <div className="tools ">

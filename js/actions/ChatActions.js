@@ -21,6 +21,12 @@ var chatActions = {
 		AppDispatcher.dispatch({
 			actionType: ChatConstants.SEND_GROUP_MESSAGE, to, textMessage
 		})
+	},
+
+	readMessage: function (sendUserId) {
+		AppDispatcher.dispatch({
+			actionType: ChatConstants.READ_MESSAGE, sendUserId
+		})
 	}
 }
 

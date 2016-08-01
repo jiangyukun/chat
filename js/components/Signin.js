@@ -6,12 +6,16 @@ import { routerShape } from 'react-router'
 import chatActions from '../actions/ChatActions'
 
 class Signin extends React.Component {
+	static contextTypes = {
+		router: routerShape
+	}
+
 	constructor(props) {
 		super(props);
 		this.displayName = 'Signin';
 		this.state = {
-			username: '',
-			password: ''
+			username: '11111111111',
+			password: 'tiger123456'
 		}
 	}
 
@@ -40,7 +44,7 @@ class Signin extends React.Component {
 
 	            <div className="input-box">
 	            	<p className="title">
-	            		小贝壳聊天系统
+	            		小贝壳聊天系统 15381080789
 	            	</p>
 	            	<div className="input-row">
 	            		<input name="username" className="form-control" placeholder="输入聊天系统账号"
@@ -57,8 +61,5 @@ class Signin extends React.Component {
     }
 }
 
-Signin.contextTypes = {
-  router: routerShape
-};
 
 export default Signin;

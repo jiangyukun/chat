@@ -8,7 +8,7 @@ var path = require('path');
 
 var server = http.createServer(function(request, response) {
     var pathname = url.parse(request.url).pathname;
-    var realPath = path.join("D:/chat/", pathname);
+    var realPath = path.join("E:/chat/", pathname);
     var ext = path.extname(realPath);
     ext = ext ? ext.slice(1) : 'unknown';
     fs.exists(realPath, function(exists) {

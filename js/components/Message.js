@@ -7,7 +7,6 @@ import classnames from 'classnames'
 class Message extends Component {
 	constructor(props) {
 		super(props)
-		this.state = {};
 	}
 
 	render() {
@@ -19,13 +18,11 @@ class Message extends Component {
 						"pull-right": this.props.dir == 'right'
 					})}>
 						<div className="col-xs-12">
-							<div className="row">xxx</div>
+							<div className="row">{this.props.username}</div>
 						</div>
 						<div className="col-xs-12">
-						 	<div className="row">content</div>
+						 	<div className="row">{this.props.content}</div>
 						</div>
-						
-	                   
 	                </div>
 				</div>
 			</div>

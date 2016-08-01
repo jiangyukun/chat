@@ -11,23 +11,31 @@ let CHAT_TYPE_USER = 1;
 let CHAT_TYPE_GROUP = 2;
 
 class ChatPanel extends Component {
+    static contextTypes = {
+        patients: PropTypes.array,
+        patientGroups: PropTypes.array,
+        message: PropTypes.object
+    }
+
     constructor(props) {
-        super(props);
+        super(props)
         this.state = {
             to: '',
             newMessage: ''
-        };
+        }
     }
 
     userChat(patient) {
-        // console.log(patient)
+        console.log(patient)
+        
         this.setState({
             chatType: CHAT_TYPE_USER,
             user: {
-                userId: patient.jid,
+                userId: patient.name,
                 username: patient.name
             }
         })
+        chatActions.readMessage(patient.name)
     }
 
     groupChat(patientGroup) {
@@ -41,6 +49,17 @@ class ChatPanel extends Component {
     }
 
     render() {
+        let self = this;
+
+        function unreadMessage(userId) {
+            let message = self.context.message[userId]
+            let count = 0;
+            if (message && message.unread) {
+                count = message.unread.count
+            }
+            return count > 0 ? <span className="red">({count})</span> : null
+        }
+
         return (
             <div className="row chat-box">
                 <div className="col-xs-3 contact-list">
@@ -60,7 +79,8 @@ class ChatPanel extends Component {
                                         this.context.patients.map((patient, index) => {
                                             return (
                                                 <li key={index} className="list-group-item" onClick={()=>{this.userChat(patient)}}>
-                                                    {patient.name}
+                                                    {patient.name} 
+                                                    {unreadMessage(patient.name)}
                                                 </li>
                                             )
                                         })
@@ -97,11 +117,6 @@ class ChatPanel extends Component {
             </div>
         )
     }
-}
-
-ChatPanel.contextTypes = {
-    patients: PropTypes.array,
-    patientGroups: PropTypes.array
 }
 
 export default ChatPanel

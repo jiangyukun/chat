@@ -7,19 +7,33 @@ import {EventEmitter} from 'events'
 
 let patientList = [];
 let patientGroupList = [];
+let message = {};
 let CHANGE_EVENT = 'change';
+let curUserId;
 
 let ChatStore = Object.assign({}, EventEmitter.prototype, {
+	getLoginUser: function () {
+		return curUserId
+	},
+
 	getPatientList: function () {
-		return patientList;
+		return patientList
 	},
 
 	getPatientGroupList: function () {
-		return patientGroupList;
+		return patientGroupList
+	},
+
+	getMessage: function () {
+		return message
 	},
 
 	addChangeListener: function(callback) {
-    	this.on(CHANGE_EVENT, callback);
+    	this.on(CHANGE_EVENT, callback)
+  	},
+
+  	removeChangeListener: function (listener) {
+  		this.removeListener(CHANGE_EVENT, listener)
   	}
 })
 
@@ -32,12 +46,27 @@ AppDispatcher.register(function (action) {
 			break;
 
 		case ChatConstants.SEND_MESSAGE:
-			console.log('send user message')
+			let {to, textMessage} = action
+
 			conn.sendTextMessage({
 				type: 'chat',
-				to: action.to,
-				msg: action.message
+				to: to,
+				msg: textMessage
 			})
+			if (!message[to]) {
+				message[to] = {
+					readMessage:[],
+					unread: {
+						count: 0,
+						message: []
+					}
+				}
+			}
+			message[to].readMessage.push({
+				from: curUserId,
+				data: action.textMessage
+			})
+			ChatStore.emit(CHANGE_EVENT)
 			break
 
 		case ChatConstants.SEND_GROUP_MESSAGE:
@@ -48,6 +77,26 @@ AppDispatcher.register(function (action) {
 				msg: action.message
 			})
 			break
+
+		case ChatConstants.READ_MESSAGE:
+			let sendUserId = action.sendUserId
+			if (!message[sendUserId]) {
+				return
+			}
+			message[sendUserId].unread.message.map((m=> {
+				if (!message[sendUserId].readMessage) {
+					message[sendUserId].readMessage = []
+				}
+				message[sendUserId].readMessage.push(m)
+			}))
+
+			message[sendUserId].unread = {
+				count: 0,
+				message: []
+			}
+			ChatStore.emit(CHANGE_EVENT)
+			break
+
 		default:
 			break;
 	}
@@ -66,20 +115,24 @@ conn = new Easemob.im.Connection({
 });
 
 function login(username, password, successCallback, errorCallback) {
-	loginSuccessCallback = successCallback;
-	loginErrorCallback = errorCallback;
+	loginSuccessCallback = successCallback
+	loginErrorCallback = errorCallback
+	if (conn.isOpened()) {
+		conn.onOpened(conn)
+		return
+	}
 	conn.open({
-		// apiUrl: Easemob.im.config.apiURL,
 		user: username,
 		pwd: password,
 		appKey: Easemob.im.config.appkey
-	});
-};
+	})
+}
 
 function handleOpen(conn) {
 	console.log(conn)
+	conn.setPresence();
 	loginSuccessCallback && loginSuccessCallback();
-	var curUserId = conn.context.userId;
+	curUserId = conn.context.userId;
 
 	conn.getRoster({
 		success: function(roster) {
@@ -106,13 +159,39 @@ function handleOpen(conn) {
 
 function handleError(error) {
 	if (error.type == USER_NOT_FOUND) {
-		loginErrorCallback && loginErrorCallback();
+		loginErrorCallback && loginErrorCallback()
 	}
 	console.log(error)
 }
 
+function handleClosed () {
+	console.log('close')
+}
+
 function handleTextMessage(messageInfo) {
+	console.log('收到消息')
 	console.log(messageInfo)
+	if (message[messageInfo.from]) {
+		let unread = message[messageInfo.from].unread
+		unread.count++
+		unread.message.push(messageInfo)
+	} else {
+		message[messageInfo.from] = {
+			unread: {
+				count: 1,
+				message: [messageInfo]
+			}
+		}
+	}
+	ChatStore.emit(CHANGE_EVENT)
+}
+
+function handlePictureMessage(pictureMessageInfo) {
+	console.log(pictureMessageInfo)
+}
+
+function handleAudioMessage(audioMessageInfo) {
+	console.log(audioMessageInfo)
 }
 
 //初始化连接

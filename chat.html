@@ -19,8 +19,9 @@
 <script src="res/js/strophe.js"></script>
 <script>
 	Strophe.log = function (level, msg) {
-		if (level == 4)
-		console.error(msg);
+        // console.log(level + ' ' + msg)
+		if (level >= 3)
+		  console.error(msg);
 	}
 </script>
 <script src="res/js/easemob.js"></script>

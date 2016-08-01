@@ -1,14 +1,5 @@
 {
-  "presets": ["es2015", "react"],
-  "plugins": ["dev-expression"],
+  "presets": [ "react","es2015", "stage-0"],
 
-  "env": {
-    "cjs": {
-      "presets": ["es2015-loose", "stage-1"],
-      "plugins": ["add-module-exports"]
-    },
-    "es": {
-      "presets": ["es2015-loose-native-modules", "stage-1"]
-    }
-  }
+  
 }

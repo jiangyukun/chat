@@ -8,8 +8,10 @@ import ChatStore from '../stores/ChatStore'
 
 function getChatState() {
     return {
+        curUserId: ChatStore.getLoginUser(),
         patients: ChatStore.getPatientList(),
-        patientGroups: ChatStore.getPatientGroupList()
+        patientGroups: ChatStore.getPatientGroupList(),
+        message: ChatStore.getMessage()
     }
 }
 
@@ -19,15 +21,29 @@ class ChatApp extends Component {
         this.state = getChatState();
     }
 
+    static childContextTypes = {
+        curUserId: PropTypes.string,
+        patients: PropTypes.array,
+        patientGroups: PropTypes.array,
+        message: PropTypes.object
+    }
+
     getChildContext() {
         return {
+            curUserId: this.state.curUserId,
             patients: this.state.patients,
-            patientGroups: this.state.patientGroups
+            patientGroups: this.state.patientGroups,
+            message: this.state.message
         }
     }
 
     componentWillMount() {
-        ChatStore.addChangeListener(()=> {this._onChange()})
+        this.changeListener = ()=> {this._onChange()}
+        ChatStore.addChangeListener(this.changeListener)
+    }
+
+    componentWillUnmount() {
+        ChatStore.removeChangeListener(this.changeListener)
     }
 
     render() {
@@ -53,11 +69,6 @@ class ChatApp extends Component {
         // console.log(this)
         this.setState(chatState)
     }
-}
-
-ChatApp.childContextTypes = {
-    patients: PropTypes.array,
-    patientGroups: PropTypes.array
 }
 
 export default ChatApp
