@@ -25,7 +25,7 @@ class ChatApp extends Component {
         curUserId: PropTypes.string,
         patients: PropTypes.array,
         patientGroups: PropTypes.array,
-        message: PropTypes.object
+        message: PropTypes.array
     }
 
     getChildContext() {
