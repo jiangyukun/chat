@@ -8,5 +8,6 @@ export default keyMirror({
 	LOGIN: null,
 	SEND_MESSAGE: null,
 	SEND_GROUP_MESSAGE: null,
-	READ_MESSAGE: null
+	READ_MESSAGE: null,
+	SEND_IMAGE_MESSAGE: null
 })

@@ -5,28 +5,51 @@ import React, {Component} from 'react'
 import {Modal, Button} from 'react-bootstrap'
 
 class SelectImage extends Component {
-	constructor(props) {
-		super(props)
-		this.state = {
-		}
-	}
+    constructor(props) {
+        super(props)
+        this.state = {imagePreview: false}
+    }
 
-	render() {
-		return (
-			<Modal show={this.props.show}>
-				<Modal.Header closeButton>
-            		<Modal.Title>选择图片</Modal.Title>
-          		</Modal.Header>
-          		<Modal.Body>
-          			xxx
-          		</Modal.Body>
-          		<Modal.Footer>
-            		<Button onClick={this.props.close}>取消</Button>
-            		<Button className="btn btn-primary" onClick={this.props.close}>发送</Button>
-          		</Modal.Footer>
-			</Modal>
-		)
-	}
+    onChange(e) {
+        let file = e.target.files[0]
+        if (!file) return
+
+        this.setState({file})
+        let fileReader = new FileReader()
+
+        fileReader.readAsDataURL(file)
+        fileReader.onload = (e)=> {
+            this.props.imageSelected()
+            this.setState({imagePreview: true, url: e.target.result})
+        }
+    }
+
+    showImagePreview() {
+        if (this.state.imagePreview) {
+            return (
+                <div className="image-preview-container">
+                    <img className="img-responsive" src={this.state.url}/>
+                </div>
+            )
+        }
+        return null
+    }
+
+    getImageFile() {
+        return this.state.file
+    }
+
+    render() {
+        return (
+            <div className="select-image">
+                <div className="select-image-container">
+                    <button className="btn select-image-btn">选择图片</button>
+                    <input type="file" className="select-image-input" onChange={(e)=>{this.onChange(e)}}/>
+                </div>
+                {this.showImagePreview()}
+            </div>
+        )
+    }
 }
 
 export default SelectImage

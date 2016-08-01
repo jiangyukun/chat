@@ -4,7 +4,7 @@
 import React, {Component, PropTypes} from 'react'
 import {Modal} from 'react-bootstrap'
 import Message from './Message'
-import SelectImage from './SelectImage'
+import SendImage from './SendImage'
 import DoctorChatRecord from './DoctorChatRecord'
 import MessageHelper from '../components/core/MessageHelper'
 import chatActions from '../actions/ChatActions'
@@ -18,17 +18,8 @@ class UserChat extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            newMessage: '',
-            isImageDialogOpen: false
+            newMessage: ''
         }
-    }
-
-    openImageDialog() {
-        this.setState({isImageDialogOpen: true})
-    }
-
-    closeImageDialog() {
-        this.setState({isImageDialogOpen: false})
     }
 
     onChange(event) {
@@ -37,11 +28,16 @@ class UserChat extends Component {
         })
     }
 
+    openImageDialog() {
+        this.refs.sendImage.toggle()
+    }
+
     sendMessage() {
         chatActions.sendMessage(this.props.user.username, this.state.newMessage)
     }
 
     render() {
+        let to = this.props.user.username
         let message = this.context.message
         let jid = this.props.user.jid
 
@@ -49,7 +45,8 @@ class UserChat extends Component {
 
         function showMessage() {
             return MessageHelper.showMessageToUI(message, jid, (index, from, data) => {
-                return <Message key={index} username={from} content={data} dir={self.context.curUserId == from ? 'right' : 'left'}/>
+                return <Message key={index} username={from} content={data}
+                                dir={self.context.curUserId == from ? 'right' : 'left'}/>
             })
         }
 
@@ -57,7 +54,7 @@ class UserChat extends Component {
             <div className="col-xs-9 message-box">
                 <div className="col-xs-6">
                     <div className="row message-box-title">
-                        <span>与{this.props.user.username}聊天中</span>
+                        <span>与{to}聊天中</span>
                     </div>
                     <div className="row history-message">
                         {showMessage()}
@@ -70,8 +67,7 @@ class UserChat extends Component {
                                         this.openImageDialog()
                                     }}></i>
                                 </div>
-                                <SelectImage show={this.state.isImageDialogOpen}
-                                             close={this.closeImageDialog.bind(this)}/>
+                                <SendImage ref="sendImage" to={to} />
                             </div>
                             <div className="pull-right">
                                 <input type="button" value="发送" className="btn btn-primary"
